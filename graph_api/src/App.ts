@@ -1,9 +1,12 @@
 import express, { Express } from 'express'
 import { graphData } from './GraphData'
 import { Node } from './Node'
+import cors from 'cors'
 
 const app: Express = express()
 const port = process.env.PORT || 3000
+
+app.use(cors())
 
 app.get('/', (req, res) => {
   const nameNodeMapping = new Map<string, Node>()
