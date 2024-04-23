@@ -1,5 +1,5 @@
 {
-  "name": "abn_amro_graph",
+  "name": "graph_api",
   "version": "1.0.0",
   "description": "",
   "main": "src/App.ts",
