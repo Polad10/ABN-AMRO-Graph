@@ -34,4 +34,9 @@ export const graphData = [
     description: 'This is a description of B-3',
     parent: 'B',
   },
+  {
+    name: 'E',
+    description: 'This is a description of E',
+    parent: 'A',
+  },
 ]
