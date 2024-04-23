@@ -2,11 +2,11 @@
   "name": "abn_amro_graph",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.ts",
+  "main": "src/App.ts",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/app.js",
-    "dev": "nodemon src/app.ts",
+    "start": "node dist/App.js",
+    "dev": "nodemon src/App.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
