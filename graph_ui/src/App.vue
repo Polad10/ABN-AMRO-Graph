@@ -1,23 +1,57 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import type { Elements } from '@vue-flow/core'
 import { VueFlow } from '@vue-flow/core'
+import type { Edge, Node } from '@vue-flow/core'
 
-let graphData = ref({})
+type NodeData = {
+  name: string
+  description: string
+  children: NodeData[]
+}
 
-const elements = ref<Elements>([
-  { id: '1', type: 'input', label: 'Node 1', position: { x: 250, y: 5 } },
-  { id: '2', label: 'Node 2', position: { x: 100, y: 100 } },
-  { id: '3', type: 'output', label: 'Node 3', position: { x: 400, y: 200 } },
-
-  { id: 'e1-3', source: '1', target: '3' },
-  { id: 'e1-2', source: '1', target: '2', animated: true },
-])
+let nodes = ref([] as Node[])
+let edges = ref([] as Edge[])
 
 onMounted(async () => {
   const response = await fetch('http://localhost:3000')
-  graphData.value = await response.json()
+  let nodesData: NodeData = await response.json()
+
+  extractNodesAndEdges(nodesData)
 })
+
+function extractNodesAndEdges(nodesData: NodeData) {
+  let nodesToProcess = [nodesData]
+  let rootProcessed = false
+
+  while (nodesToProcess.length > 0) {
+    let children = [] as NodeData[]
+
+    for (const nodeData of nodesToProcess) {
+      let nodeType = 'process'
+
+      if (!rootProcessed) {
+        nodeType = 'input'
+        rootProcessed = true
+      } else if (nodeData.children.length === 0) {
+        nodeType = 'output'
+      }
+
+      nodes.value.push({ id: nodeData.name, label: nodeData.name, position: { x: 0, y: 0 }, type: nodeType })
+
+      const newEdges = nodeData.children.map((child) => ({
+        id: `${nodeData.name}-${child.name}`,
+        source: nodeData.name,
+        target: child.name,
+      }))
+
+      edges.value.push(...newEdges)
+
+      children.push(...nodeData.children)
+    }
+
+    nodesToProcess = children
+  }
+}
 </script>
 
 <template>
@@ -28,7 +62,7 @@ onMounted(async () => {
   </header>
 
   <div style="width: 100%; height: 100%">
-    <VueFlow v-model="elements"></VueFlow>
+    <VueFlow :nodes="nodes" :edges="edges"></VueFlow>
   </div>
 </template>
 
