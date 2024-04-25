@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
 import { Position, useVueFlow, VueFlow } from '@vue-flow/core'
-import type { Edge, Node } from '@vue-flow/core'
+import type { Edge, Node, NodeMouseEvent } from '@vue-flow/core'
 import dagre from '@dagrejs/dagre'
 
 type NodeData = {
@@ -40,7 +40,13 @@ function extractNodesAndEdges(nodesData: NodeData) {
         nodeType = 'output'
       }
 
-      nodes.value.push({ id: nodeData.name, label: nodeData.name, position: { x: 0, y: 0 }, type: nodeType })
+      nodes.value.push({
+        id: nodeData.name,
+        label: nodeData.name,
+        data: { description: nodeData.description },
+        position: { x: 0, y: 0 },
+        type: nodeType,
+      })
 
       const newEdges = nodeData.children.map((child) => ({
         id: `${nodeData.name}-${child.name}`,
@@ -93,6 +99,10 @@ function handleLayout() {
     fitView()
   })
 }
+
+function handleNodeClick(event: NodeMouseEvent) {
+  console.log(event.node.data.description)
+}
 </script>
 
 <template>
@@ -103,7 +113,7 @@ function handleLayout() {
   </header>
 
   <div style="width: 100%; height: 100%">
-    <VueFlow :nodes="nodes" :edges="edges" @nodes-initialized="handleLayout"></VueFlow>
+    <VueFlow :nodes="nodes" :edges="edges" @nodes-initialized="handleLayout" @node-click="handleNodeClick"></VueFlow>
   </div>
 </template>
 
