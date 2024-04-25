@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { VueFlow } from '@vue-flow/core'
+import { nextTick, onMounted, ref } from 'vue'
+import { Position, useVueFlow, VueFlow } from '@vue-flow/core'
 import type { Edge, Node } from '@vue-flow/core'
+import dagre from '@dagrejs/dagre'
 
 type NodeData = {
   name: string
@@ -9,8 +10,11 @@ type NodeData = {
   children: NodeData[]
 }
 
-let nodes = ref([] as Node[])
-let edges = ref([] as Edge[])
+const { findNode, fitView } = useVueFlow()
+
+const dagreGraph = ref(new dagre.graphlib.Graph())
+const nodes = ref([] as Node[])
+const edges = ref([] as Edge[])
 
 onMounted(async () => {
   const response = await fetch('http://localhost:3000')
@@ -52,6 +56,43 @@ function extractNodesAndEdges(nodesData: NodeData) {
     nodesToProcess = children
   }
 }
+
+function handleLayout() {
+  dagreGraph.value = new dagre.graphlib.Graph()
+  dagreGraph.value.setDefaultEdgeLabel(() => ({}))
+
+  dagreGraph.value.setGraph({ rankdir: 'TB' })
+
+  for (const node of nodes.value) {
+    const graphNode = findNode(node.id)!
+
+    dagreGraph.value.setNode(node.id, {
+      width: graphNode.dimensions.width || 150,
+      height: graphNode.dimensions.height || 50,
+    })
+  }
+
+  for (const edge of edges.value) {
+    dagreGraph.value.setEdge(edge.source, edge.target)
+  }
+
+  dagre.layout(dagreGraph.value)
+
+  nodes.value = nodes.value.map((node) => {
+    const nodeWithPosition = dagreGraph.value.node(node.id)
+
+    return {
+      ...node,
+      targetPosition: Position.Top,
+      sourcePosition: Position.Bottom,
+      position: { x: nodeWithPosition.x, y: nodeWithPosition.y },
+    }
+  })
+
+  nextTick(() => {
+    fitView()
+  })
+}
 </script>
 
 <template>
@@ -62,7 +103,7 @@ function extractNodesAndEdges(nodesData: NodeData) {
   </header>
 
   <div style="width: 100%; height: 100%">
-    <VueFlow :nodes="nodes" :edges="edges"></VueFlow>
+    <VueFlow :nodes="nodes" :edges="edges" @nodes-initialized="handleLayout"></VueFlow>
   </div>
 </template>
 
