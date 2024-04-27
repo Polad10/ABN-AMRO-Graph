@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000
 
 app.use(cors())
 
-app.get('/', (req, res) => {
+app.get('/graphData', (req, res) => {
   const nameNodeMapping = new Map<string, Node>()
   let root: Node | null = null
 
