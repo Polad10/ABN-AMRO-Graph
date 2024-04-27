@@ -5,7 +5,7 @@
   "main": "src/App.ts",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/App.js",
+    "start": "node dist/src/App.js",
     "dev": "nodemon src/App.ts",
     "test": "jest --detectOpenHandles"
   },
