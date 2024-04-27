@@ -22,7 +22,7 @@ const selectedNodeName = ref('')
 const selectedNodeDescription = ref('')
 
 onMounted(async () => {
-  const response = await fetch('http://localhost:3000')
+  const response = await fetch('http://localhost:3000/graphData')
   let nodesData: NodeData = await response.json()
 
   extractNodesAndEdges(nodesData)
