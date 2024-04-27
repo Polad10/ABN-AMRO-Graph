@@ -21,7 +21,7 @@ const selectedNode = ref({} as GraphNode)
 const selectedNodeName = ref('')
 const selectedNodeDescription = ref('')
 
-const api = import.meta.env.API_URL || 'http://localhost:3000'
+const api = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 onMounted(async () => {
   const response = await fetch(`${api}/graphData`)
