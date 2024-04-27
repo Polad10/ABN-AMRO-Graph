@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
 import { Position, useVueFlow, VueFlow } from '@vue-flow/core'
-import type { Edge, Node, NodeMouseEvent } from '@vue-flow/core'
+import type { Edge, GraphNode, Node, NodeMouseEvent } from '@vue-flow/core'
 import dagre from '@dagrejs/dagre'
 
 type NodeData = {
@@ -15,6 +15,11 @@ const { findNode, fitView } = useVueFlow()
 const dagreGraph = ref(new dagre.graphlib.Graph())
 const nodes = ref([] as Node[])
 const edges = ref([] as Edge[])
+
+const showDescription = ref(false)
+const selectedNode = ref({} as GraphNode)
+const selectedNodeName = ref('')
+const selectedNodeDescription = ref('')
 
 onMounted(async () => {
   const response = await fetch('http://localhost:3000')
@@ -101,7 +106,16 @@ function handleLayout() {
 }
 
 function handleNodeClick(event: NodeMouseEvent) {
-  console.log(event.node.data.description)
+  selectedNode.value = event.node
+  selectedNodeName.value = selectedNode.value.id
+  selectedNodeDescription.value = selectedNode.value.data.description
+
+  showDescription.value = true
+}
+
+function closeDescription() {
+  selectedNode.value.selected = false
+  showDescription.value = false
 }
 </script>
 
@@ -113,6 +127,27 @@ function handleNodeClick(event: NodeMouseEvent) {
   </header>
 
   <div style="width: 100%; height: 100%">
+    <div class="h-48">
+      <div v-if="showDescription" class="card w-96 h-48 bg-base-100 shadow-xl">
+        <div class="card-body">
+          <div class="card-actions justify-end">
+            <button class="btn btn-square btn-sm" @click="closeDescription">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <p class="text-lg">{{ selectedNodeName }}</p>
+          <p>{{ selectedNodeDescription }}</p>
+        </div>
+      </div>
+    </div>
     <VueFlow :nodes="nodes" :edges="edges" @nodes-initialized="handleLayout" @node-click="handleNodeClick"></VueFlow>
   </div>
 </template>
