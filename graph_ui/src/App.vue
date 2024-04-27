@@ -21,8 +21,10 @@ const selectedNode = ref({} as GraphNode)
 const selectedNodeName = ref('')
 const selectedNodeDescription = ref('')
 
+const api = import.meta.env.API_URL || 'http://localhost:3000'
+
 onMounted(async () => {
-  const response = await fetch('http://localhost:3000/graphData')
+  const response = await fetch(`${api}/graphData`)
   let nodesData: NodeData = await response.json()
 
   extractNodesAndEdges(nodesData)
