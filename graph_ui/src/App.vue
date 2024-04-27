@@ -36,8 +36,11 @@ function extractNodesAndEdges(nodesData: NodeData) {
     let children = [] as NodeData[]
 
     for (const nodeData of nodesToProcess) {
+      // "process" node type has input and output
       let nodeType = 'process'
 
+      // set node type "input" for root
+      // set node type "output" for leaf nodes
       if (!rootProcessed) {
         nodeType = 'input'
         rootProcessed = true
@@ -53,6 +56,7 @@ function extractNodesAndEdges(nodesData: NodeData) {
         type: nodeType,
       })
 
+      // create an edge from current node to its children
       const newEdges = nodeData.children.map((child) => ({
         id: `${nodeData.name}-${child.name}`,
         source: nodeData.name,
@@ -128,7 +132,7 @@ function closeDescription() {
 
   <div style="width: 100%; height: 100%">
     <div class="h-48">
-      <div v-if="showDescription" class="card w-96 h-48 bg-base-100 shadow-xl">
+      <div v-if="showDescription" class="card w-96 h-48 shadow-xl">
         <div class="card-body">
           <div class="card-actions justify-end">
             <button class="btn btn-square btn-sm" @click="closeDescription">
